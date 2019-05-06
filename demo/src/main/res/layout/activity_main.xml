@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        >
+
+       <LinearLayout
+           android:orientation="horizontal"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content">
+
+       <Button
+           android:layout_marginLeft="20px"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:text="presentation"
+           android:id="@+id/show_presentation"
+           />
+              <Button
+                  android:layout_marginLeft="20px"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="mirror"
+                  android:id="@+id/show_mirror"
+                  />
+              <Button
+                  android:layout_marginLeft="20px"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="compound"
+                  android:id="@+id/show_glcompound"
+                  />
+              <Button
+                  android:layout_marginLeft="20px"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="pause"
+                  android:id="@+id/pause"
+                  />
+
+              <Button
+                  android:layout_marginLeft="20px"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="stop"
+                  android:id="@+id/stop"
+                  />
+
+       </LinearLayout>
+
+       <LinearLayout
+           android:orientation="horizontal"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content">
+
+              <android.support.v7.widget.AppCompatTextView
+                  android:id="@+id/service"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  />
+
+              <com.a100tal.demo.projectiondemo.ButtonView
+           android:id="@+id/animation"
+           android:layout_marginLeft="100px"
+           android:layout_width="200px"
+           android:layout_height="200px"
+           android:background="#0011ff"
+           />
+
+              <android.support.v7.widget.AppCompatTextView
+                  android:id="@+id/text"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  />
+
+       </LinearLayout>
+    </LinearLayout>
+
+     <com.hwl.media.widget.MirrorView
+         android:id="@+id/view_mirror"
+         android:visibility="invisible"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/border" />
+
+</FrameLayout>
