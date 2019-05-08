@@ -48,13 +48,13 @@
                   android:id="@+id/pause"
                   />
 
-              <Button
-                  android:layout_marginLeft="20px"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:text="stop"
-                  android:id="@+id/stop"
-                  />
+           <Button
+               android:layout_marginLeft="20px"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:text="stop"
+               android:id="@+id/stop"
+               />
 
        </LinearLayout>
 

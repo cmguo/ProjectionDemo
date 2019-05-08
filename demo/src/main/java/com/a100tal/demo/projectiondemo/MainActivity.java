@@ -12,15 +12,19 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatTextView;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
+import com.hwl.media.projection.ProjectionManager;
 
 import com.hwl.media.projection.ProjectionManager;
 import com.hwl.media.remote.BoardService;
 import com.hwl.media.widget.MirrorView;
+import com.journeyapps.barcodescanner.CaptureActivity;
 import com.ustc.base.debug.Console;
+import com.ustc.base.debug.Log;
 import com.ustc.base.debug.PluginDebug;
 import com.ustc.base.debug.tools.Plugin;
 import com.ustc.base.plugin.PluginManager;
@@ -31,7 +35,10 @@ import java.util.Timer;
 
 public class MainActivity extends AppCompatActivity implements BoardService.IServiceListener {
 
-    public BoardService mBoardService;
+    private static final String TAG = "MainActivity";
+    private static final int REQUEST_MEDIA_PROJECTION = 1000;
+
+    private BoardService mBoardService;
     private AppCompatTextView mTextView;
     private Timer mTimer;
     private ProjectionManager mProjectionManager;
@@ -87,6 +94,16 @@ public class MainActivity extends AppCompatActivity implements BoardService.ISer
 
         mTextView = findViewById(R.id.text);
         mServiceTextView = findViewById(R.id.service);
+        mServiceTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "mServiceTextView onClick");
+                IntentIntegrator intentIntegrator = new IntentIntegrator(MainActivity.this);
+                intentIntegrator.setCaptureActivity(CaptureActivity.class);
+                intentIntegrator.setBeepEnabled(false);
+                intentIntegrator.initiateScan();
+            }
+        });
         mTimeRun.run();
         onServiceLost();
     }
@@ -137,7 +154,7 @@ public class MainActivity extends AppCompatActivity implements BoardService.ISer
         MediaProjectionManager mediaManager = (MediaProjectionManager) getSystemService(
                 Context.MEDIA_PROJECTION_SERVICE);
         startActivityForResult(
-                mediaManager.createScreenCaptureIntent(), 100, null);
+                mediaManager.createScreenCaptureIntent(), REQUEST_MEDIA_PROJECTION, null);
     }
 
     private long mStartTime = SystemClock.uptimeMillis();
@@ -159,9 +176,18 @@ public class MainActivity extends AppCompatActivity implements BoardService.ISer
     };
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        mProjectionManager.setMirrorProjection(resultCode, data);
+        if (requestCode == REQUEST_MEDIA_PROJECTION) {
+            mProjectionManager.setMirrorProjection(resultCode, data);
+        } else {
+            IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+            if (result != null) {
+                if (result.getContents() != null) {
+                    mBoardService.setService(result.getContents());
+                }
+            }
+        }
     }
 
     @Override

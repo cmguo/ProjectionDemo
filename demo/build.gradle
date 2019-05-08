@@ -22,11 +22,12 @@ dependencies {
     implementation project(":DebugTools")
     implementation project(":BaseDroid")
     implementation project(':Remote:library')
-    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'com.squareup.okhttp3:okhttp:3.6.0'
     implementation 'com.google.code.gson:gson:2.8.0'
     implementation 'com.squareup.leakcanary:leakcanary-android:1.5.4'
     implementation 'org.simpleframework:simple-xml:2.7.1'
     implementation 'com.github.franmontiel:PersistentCookieJar:v1.0.1'
     implementation 'org.jetbrains:annotations-java5:15.0'
+    implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
 }
