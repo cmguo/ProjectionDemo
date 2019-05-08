@@ -14,17 +14,17 @@ import com.ustc.base.debug.Dumpper;
 import com.ustc.base.debug.Log;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-public class EncodeStream  implements Dumpable{
+public class EncodeStream implements Dumpable{
 
-	private static final String TAG = "yjl";
+	private static final String TAG = "EncodeStream";
 
-    
     private MediaCodec mEncoder;
 	private MediaCodec.BufferInfo mBufferInfo;
     private Surface mSurface;
@@ -92,9 +92,9 @@ public class EncodeStream  implements Dumpable{
 				++numTotal;
 			}
 	    }
+		Log.d(TAG, "bumpSamples stopped");
     }
 
-	
 	protected boolean popSample(long startTime, int timeout, WritableByteChannel channel) throws IOException {
 		int index = mEncoder.dequeueOutputBuffer(mBufferInfo, timeout * 1000);
 		if (index >= 0) {
@@ -112,7 +112,6 @@ public class EncodeStream  implements Dumpable{
 			}
 
 			//channel.(bytes.array());
-			Log.d(TAG,"bytes:"+bytes.toString()+"len:"+mBufferInfo.size);
             channel.write(bytes);
 			mEncoder.releaseOutputBuffer(index, false);
 			return true;
@@ -168,5 +167,5 @@ public class EncodeStream  implements Dumpable{
 		Log.d(TAG, "Not Found codec for mine type " + mineType);
 		return null;
 	}
-	
+
 }

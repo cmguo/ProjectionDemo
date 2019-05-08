@@ -37,7 +37,7 @@ public class GLDisplayRenderer extends GLRenderer
     private GPUImageDisplayFilter mFilter;
 
     public GLDisplayRenderer() {
-        GPUImageDisplayFilter.setVideoTexture(true);
+        GPUImageFilter.setVideoTexture(true);
         mFilter = new GPUImageDisplayFilter();
     }
 
@@ -54,8 +54,6 @@ public class GLDisplayRenderer extends GLRenderer
     public boolean initDraw(GL10 gl) {
         Log.d(TAG, "initDraw");
         
-        //mSTMMatrixHandle = mProgram.getUniform("uSTMatrix");
-
         if (mPresentTexture != null)
             return true;
 
@@ -67,7 +65,7 @@ public class GLDisplayRenderer extends GLRenderer
 
         setFilter(mFilter);
 
-        useLastTexture(mPresentTexture);
+        //useLastTexture(mPresentTexture);
         mFilter.setTexture(mPresentTexture.id());
 
         // stand-alone work thread

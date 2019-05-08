@@ -13,6 +13,8 @@ import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.Surface;
 
+import com.hwl.media.remote.BoardService;
+import com.hwl.media.remote.InternetGateway;
 import com.hwl.media.remote.ScreenRecord;
 import com.ustc.base.debug.Console;
 import com.ustc.base.debug.Log;
@@ -21,6 +23,8 @@ import com.ustc.base.util.stream.Streams;
 import com.ustc.opengl.egl.GLThread;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 
 public class ProjectionManager {
@@ -40,7 +44,7 @@ public class ProjectionManager {
     private MediaProjection mMediaProjection;
     private DisplayManager mDisplayManager;
     private GLDisplayRenderer nRenderer;
-    private EncodeStream mEncodeStream;
+    private MyWriter mWriter;
     private Thread mEncodeThread;
     private String mPublishUrl;
     private GLThread mGLThread;
@@ -136,27 +140,40 @@ public class ProjectionManager {
     }
 
     public void startProjection(final Console.StreamTunnel tunnel) {
-        mEncodeStream = new EncodeStream(mContext);
-        mEncodeStream.init(REQUEST_DISPLAY_WIDTH, REQUEST_DISPLAY_HEIGHT);
-        setInputSurface(mEncodeStream.getInputSurface());
-        mEncodeStream.start();
+        final EncodeStream stream = createEncoder();
         mEncodeThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    mEncodeStream.bumpSamples(0, tunnel.getOut());
+                    stream.bumpSamples(0, tunnel.getOut());
                 } catch (IOException e) {
                     Log.w(TAG, "bumpSamples", e);
                 }
                 Streams.closeQuietly(tunnel);
-                mEncodeStream.term();
-                mEncodeStream = null;
             }
         });
         mEncodeThread.start();
     }
 
+    public BoardService.IWriter startProjection() {
+        final EncodeStream stream = createEncoder();
+        mWriter = new MyWriter(stream);
+        return mWriter;
+    }
+
+    private EncodeStream createEncoder() {
+        EncodeStream stream = new EncodeStream(mContext);
+        stream.init(REQUEST_DISPLAY_WIDTH, REQUEST_DISPLAY_HEIGHT);
+        setInputSurface(stream.getInputSurface());
+        stream.start();
+        return stream;
+    }
+
     public void stopProjection() {
+        if (mWriter != null) {
+            mWriter.interrupt();
+            mWriter = null;
+        }
         if (mEncodeThread != null) {
             mEncodeThread.interrupt();
             try {
@@ -252,5 +269,43 @@ public class ProjectionManager {
             }
         };
         mGLThread.setRenderer(nRenderer, false);
+    }
+
+    private static class MyWriter implements BoardService.IWriter {
+        private final EncodeStream stream;
+        private Thread mThread;
+        private boolean mInterrupted;
+
+        public MyWriter(EncodeStream stream) {
+            this.stream = stream;
+        }
+
+        @Override
+        public void write(OutputStream os) throws IOException {
+            synchronized (this) {
+                if (mInterrupted)
+                    return;
+                mThread = Thread.currentThread();
+            }
+            try {
+                stream.bumpSamples(0, os);
+            } finally {
+                synchronized (this) {
+                    mThread = null;
+                    notify();
+                }
+            }
+        }
+
+        public synchronized void interrupt() {
+            mInterrupted = true;
+            while (mThread != null) {
+                mThread.interrupt();
+                try {
+                    wait();
+                } catch (InterruptedException e) {
+                }
+            }
+        }
     }
 }

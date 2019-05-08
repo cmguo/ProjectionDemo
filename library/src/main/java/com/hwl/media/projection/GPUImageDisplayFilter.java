@@ -27,7 +27,7 @@ public class GPUImageDisplayFilter extends GPUImageMixBlendFilter implements Dum
                     "    gl_FragColor = vec4(mix(color.rgb, color2.rgb, mixturePercent), color.a);\n" +
                     " }\n";
 
-    private float[] bound = new float[] {0.2f, 0.2f, 0.6f, 0.6f};
+    private float[] bound = new float[] {0.0f, 0.0f, 1f, 1f};
 
     private int boundLocation;
 
