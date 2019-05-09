@@ -14,6 +14,7 @@ import android.view.WindowManager;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
+import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.appcompat.widget.AppCompatTextView;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
@@ -90,6 +91,12 @@ public class MainActivity extends AppCompatActivity implements BoardService.ISer
                 ((AppCompatButton)(v)).setText(mTimerPause ? "resume" : "pause");
             }
         });
+        findViewById(R.id.chk_port).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mProjectionManager.usePortMapping(((AppCompatCheckBox) v).isChecked());
+            }
+        });
         ((MirrorView) findViewById(R.id.view_mirror)).setProjection(mProjectionManager);
 
         mTextView = findViewById(R.id.text);
@@ -134,7 +141,11 @@ public class MainActivity extends AppCompatActivity implements BoardService.ISer
                 window.setAttributes(lp);
                 buttonView.startAnimations();
             }
-            mBoardService.remoteDisplay(mProjectionManager.getPulishUrl());
+            boolean push = ((AppCompatCheckBox) findViewById(R.id.chk_push)).isChecked();
+            if (push)
+                mBoardService.remoteDisplay(mProjectionManager.startProjection());
+            else
+                mBoardService.remoteDisplay(mProjectionManager.getPulishUrl());
             mStartTime = SystemClock.uptimeMillis();
             mTimerPause = false;
         }

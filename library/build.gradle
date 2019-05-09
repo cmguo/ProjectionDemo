@@ -21,4 +21,11 @@ dependencies {
     compileOnly project(":BaseDroid")
     compileOnly project(":DebugTools")
     compileOnly project(":GLAndroid")
+    compileOnly 'com.squareup.okhttp3:okhttp:3.6.0'
+    compileOnly 'com.google.code.gson:gson:2.8.0'
+    compileOnly 'com.squareup.leakcanary:leakcanary-android:1.5.4'
+    compileOnly 'org.simpleframework:simple-xml:2.7.1'
+    compileOnly 'com.github.franmontiel:PersistentCookieJar:v1.0.1'
+    compileOnly 'org.jetbrains:annotations-java5:15.0'
+    implementation fileTree(dir: 'src/main/libs', include: ['*.jar'])
 }

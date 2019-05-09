@@ -36,6 +36,8 @@ public class ProjectionManager {
 
     private Context mContext;
 
+    private short mPublishPort;
+    private InternetGateway mGateway;
     private VirtualDisplay mPresentationDisplay;
     private VirtualDisplay mMirrorDisplay;
     private DisplayMetrics mMetrics;
@@ -69,20 +71,20 @@ public class ProjectionManager {
     }
 
     public String getPulishUrl() {
-        return mPublishUrl;
+        return "http://" + mGateway.getRealIp(mPublishPort) + ":"
+                + mPublishPort + "/screen_record.h264";
     }
 
     private long mLastTime = 0;
     private long mLastFrame = 0;
 
-    public double FPS(long now)
-    {
+    public double FPS(long now) {
         if (nRenderer == null || mLastTime == 0) {
             mLastTime = now;
             return 0.0;
         }
         long frame = nRenderer.getTotalFrame();
-        double fps = (double)(frame - mLastFrame) * 1000 / (now - mLastTime);
+        double fps = (double) (frame - mLastFrame) * 1000 / (now - mLastTime);
         mLastFrame = frame;
         mLastTime = now;
         return fps;
@@ -94,10 +96,21 @@ public class ProjectionManager {
         }
     }
 
+    public void usePortMapping(boolean use) {
+        if (use) {
+            mGateway.addMap(mPublishPort);
+        } else {
+            mGateway.removeMap(mPublishPort);
+        }
+    }
+
     private void init() {
 
         EncoderDebugger.asyncDebug(mContext, ProjectionManager.REQUEST_DISPLAY_WIDTH,
                 ProjectionManager.REQUEST_DISPLAY_HEIGHT);
+
+        mPublishPort = (short) HttpManager.getInstance(mContext).getPort();
+        mGateway = new InternetGateway(mContext);
 
         mMetrics = Resources.getSystem().getDisplayMetrics();
         // media Prejection service for mirror
@@ -113,9 +126,6 @@ public class ProjectionManager {
         // after http connection create
         Console.getInstance().registerCommand("screen_record",
                 new ScreenRecord.Command(mContext, this));
-        mPublishUrl = "http://" + NetworkMonitor.getHostIP() + ":"
-                + HttpManager.getInstance(mContext).getPort() + "/screen_record.h264";
-        Log.d(TAG, "init mPublishUrl=" + mPublishUrl);
     }
 
     public void setProjectionMode(ProjectionMode mode) {

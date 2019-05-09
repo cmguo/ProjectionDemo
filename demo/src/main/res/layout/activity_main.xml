@@ -69,13 +69,25 @@
                   android:layout_height="wrap_content"
                   />
 
-              <com.a100tal.demo.projectiondemo.ButtonView
-           android:id="@+id/animation"
-           android:layout_marginLeft="100px"
-           android:layout_width="200px"
-           android:layout_height="200px"
-           android:background="#0011ff"
-           />
+           <android.support.v7.widget.AppCompatCheckBox
+               android:id="@+id/chk_push"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:text="push" />
+
+           <android.support.v7.widget.AppCompatCheckBox
+               android:id="@+id/chk_port"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:text="port-map" />
+
+           <com.a100tal.demo.projectiondemo.ButtonView
+                   android:id="@+id/animation"
+                   android:layout_marginLeft="100px"
+                   android:layout_width="200px"
+                   android:layout_height="200px"
+                   android:background="#0011ff"
+                  />
 
               <androidx.appcompat.widget.AppCompatTextView
                   android:id="@+id/text"
