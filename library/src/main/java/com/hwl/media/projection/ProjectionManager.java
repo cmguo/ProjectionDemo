@@ -1,6 +1,5 @@
 package com.hwl.media.projection;
 
-import android.app.Presentation;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -10,14 +9,9 @@ import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
-import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.view.Display;
-import android.view.LayoutInflater;
 import android.view.Surface;
-import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 
 import com.hwl.media.remote.ScreenRecord;
 import com.ustc.base.debug.Console;
@@ -137,7 +131,7 @@ public class ProjectionManager {
         }
     }
 
-    public void setMirrorProjection(int resultCode, @Nullable Intent data) {
+    public void setMirrorProjection(int resultCode, Intent data) {
         mMediaProjection = mMediaManager.getMediaProjection(resultCode, data);
     }
 
