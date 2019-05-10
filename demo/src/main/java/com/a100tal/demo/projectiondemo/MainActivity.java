@@ -25,11 +25,14 @@ import com.hwl.media.remote.BoardService;
 import com.hwl.media.widget.MirrorView;
 import com.journeyapps.barcodescanner.CaptureActivity;
 import com.ustc.base.debug.Console;
+import com.ustc.base.debug.Debug;
+import com.ustc.base.debug.DebugLog;
 import com.ustc.base.debug.Log;
 import com.ustc.base.debug.PluginDebug;
 import com.ustc.base.debug.tools.Plugin;
 import com.ustc.base.plugin.PluginManager;
 
+import java.io.File;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.Timer;
@@ -39,7 +42,6 @@ public class MainActivity extends AppCompatActivity implements BoardService.ISer
     private static final String TAG = "MainActivity";
     private static final int REQUEST_MEDIA_PROJECTION = 1000;
 
-    private BoardService mBoardService;
     private AppCompatTextView mTextView;
     private Timer mTimer;
     private ProjectionManager mProjectionManager;
@@ -49,15 +51,18 @@ public class MainActivity extends AppCompatActivity implements BoardService.ISer
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mBoardService = new BoardService(this, this);
+        BoardService.getInstance(this).setServiceListener(this);
 
+        Debug.initProps(getApplicationContext());
+        DebugLog.setLogFileParams(new File(getCacheDir(), "projection.log"),
+                "fake head", 1024 * 1024, 3);
         PluginManager.registerPlugins(Plugin.class);
         PluginManager.getInstance(this).importPlugins(null,null);
         PluginManager.getInstance(this).loadPlugins(PluginDebug.class);
         // detect Encoder
         startScreenCaptureIntent();
 
-        mProjectionManager = new ProjectionManager(MainActivity.this);
+        mProjectionManager = ProjectionManager.getInstance(MainActivity.this);
 
         findViewById(R.id.show_presentation).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -143,9 +148,9 @@ public class MainActivity extends AppCompatActivity implements BoardService.ISer
             }
             boolean push = ((AppCompatCheckBox) findViewById(R.id.chk_push)).isChecked();
             if (push)
-                mBoardService.remoteDisplay(mProjectionManager.startProjection());
+                BoardService.getInstance(this).remoteDisplay(mProjectionManager.startProjection());
             else
-                mBoardService.remoteDisplay(mProjectionManager.getPulishUrl());
+                BoardService.getInstance(this).remoteDisplay(mProjectionManager.getPulishUrl());
             mStartTime = SystemClock.uptimeMillis();
             mTimerPause = false;
         }
@@ -195,7 +200,7 @@ public class MainActivity extends AppCompatActivity implements BoardService.ISer
             IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
             if (result != null) {
                 if (result.getContents() != null) {
-                    mBoardService.setService(result.getContents());
+                    BoardService.getInstance(this).setService(result.getContents());
                 }
             }
         }

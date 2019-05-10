@@ -6,6 +6,9 @@ import android.net.nsd.NsdServiceInfo;
 import android.os.Build;
 import android.os.Handler;
 
+import com.ustc.base.debug.Console;
+import com.ustc.base.debug.Dumpable;
+import com.ustc.base.debug.Dumpper;
 import com.ustc.base.debug.Log;
 import com.ustc.base.network.UrlConfig;
 import com.ustc.base.network.UrlFetcher;
@@ -21,27 +24,39 @@ import okhttp3.RequestBody;
 import okio.Buffer;
 import okio.BufferedSink;
 
-public class BoardService implements ServiceDiscovery.IServiceListener {
-
-    private String mUri;
+public class BoardService implements ServiceDiscovery.IServiceListener, Dumpable {
 
     public interface IServiceListener {
         void onServiceFound(String name);
         void onServiceLost();
     }
 
+    public synchronized static BoardService getInstance(Context context) {
+        if (sInstance == null) {
+            sInstance = new BoardService(context);
+            Console.getInstance(context).registerModule("board", sInstance);
+        }
+        return sInstance;
+    }
+
     private final static String TAG = "BoardService";
+
+    private static BoardService sInstance;
 
     private ServiceDiscovery mServiceDiscovery;
     private NsdServiceInfo mService;
+    private String mUri;
     private UrlFetcher mHttpClient = new UrlFetcher();
-    private final IServiceListener mServiceListener;
+    private IServiceListener mServiceListener;
     private Handler mHandler = new Handler();
 
-    public BoardService(Context context, IServiceListener listener) {
+    private BoardService(Context context) {
         mServiceDiscovery = new ServiceDiscovery(context, this);
-        mServiceListener = listener;
         mServiceDiscovery.startDiscover();
+    }
+
+    public void setServiceListener(IServiceListener listener) {
+        mServiceListener = listener;
     }
 
     public void remoteDisplay(final String videoUrl) {
@@ -173,4 +188,12 @@ public class BoardService implements ServiceDiscovery.IServiceListener {
 //        }
         mHttpClient.asyncPost(url, data, callback, configs);
     }
+
+    @Override
+    public void dump(Dumpper dumpper) {
+        dumpper.dump("mService", mService);
+        dumpper.dump("mUri", mUri);
+        dumpper.dump("mServiceListener", mServiceListener);
+    }
+
 }

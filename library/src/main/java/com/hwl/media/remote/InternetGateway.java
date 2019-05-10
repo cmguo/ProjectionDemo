@@ -3,6 +3,7 @@ package com.hwl.media.remote;
 import android.content.Context;
 
 import com.hwl.media.projection.NetworkMonitor;
+import com.ustc.base.debug.Console;
 import com.ustc.base.debug.Dumpable;
 import com.ustc.base.debug.Dumpper;
 import com.ustc.base.debug.Log;
@@ -28,8 +29,18 @@ import java.util.Map;
 
 public class InternetGateway implements UpnpStack.IServiceListener, Dumpable {
 
+    public synchronized static InternetGateway getInstance(Context context) {
+        if (sInstance == null) {
+            sInstance = new InternetGateway(context);
+            Console.getInstance(context).registerModule("gateway", sInstance);
+        }
+        return sInstance;
+    }
+
     private static final String TAG = "InternetGateway";
     private static final String SERVICE_TYPE = "WANIPConnection";
+
+    private static InternetGateway sInstance;
 
     private final UpnpStack mUpnpStack;
     private RemoteService mService;
@@ -38,7 +49,7 @@ public class InternetGateway implements UpnpStack.IServiceListener, Dumpable {
     private List<Short> mRequestPortMaps = new ArrayList<Short>();
     private List<Short> mPortMaps = new ArrayList<Short>();
 
-    public InternetGateway(Context context) {
+    private InternetGateway(Context context) {
         mUpnpStack = UpnpStack.getInstance(context);
         mUpnpStack.addServiceType(SERVICE_TYPE, this);
         mExternalIp = mLocalIp = NetworkMonitor.getHostIP();

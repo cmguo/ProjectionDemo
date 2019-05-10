@@ -7,8 +7,12 @@ import android.net.nsd.NsdServiceInfo;
 import android.os.Build;
 import android.util.Log;
 
+import com.ustc.base.debug.Console;
+import com.ustc.base.debug.Dumpable;
+import com.ustc.base.debug.Dumpper;
+
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-public class ServiceDiscovery {
+public class ServiceDiscovery implements Dumpable {
 
     public interface IServiceListener {
         void onServiceFound(NsdServiceInfo serviceInfo);
@@ -28,6 +32,7 @@ public class ServiceDiscovery {
         mNsdManager = (NsdManager) context.getSystemService(Context.NSD_SERVICE);
         mDiscoveryListener = new MyDiscoveryListener();
         mResolveListener = new MyResolveListener();
+        Console.getInstance(context).registerModule("nsd", this);
     }
 
     public void startDiscover() {
@@ -88,4 +93,13 @@ public class ServiceDiscovery {
             mServiceListener.onServiceLost(serviceInfo);
         }
     }
+    @Override
+    public void dump(Dumpper dumpper) {
+        dumpper.dump("mNsdManager", mNsdManager);
+        dumpper.dump("mServerType", mServerType);
+        dumpper.dump("mServiceListener", mServiceListener);
+        dumpper.dump("mDiscoveryListener", mDiscoveryListener);
+        dumpper.dump("mResolveListener", mResolveListener);
+    }
+
 }

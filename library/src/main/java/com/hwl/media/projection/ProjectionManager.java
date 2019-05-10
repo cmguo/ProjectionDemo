@@ -17,6 +17,8 @@ import com.hwl.media.remote.BoardService;
 import com.hwl.media.remote.InternetGateway;
 import com.hwl.media.remote.ScreenRecord;
 import com.ustc.base.debug.Console;
+import com.ustc.base.debug.Dumpable;
+import com.ustc.base.debug.Dumpper;
 import com.ustc.base.debug.Log;
 import com.ustc.base.debug.tools.HttpManager;
 import com.ustc.base.util.stream.Streams;
@@ -27,12 +29,21 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 
-public class ProjectionManager {
+public class ProjectionManager implements Dumpable {
 
-    public final static int REQUEST_DISPLAY_WIDTH = 1920;
-    public final static int REQUEST_DISPLAY_HEIGHT = 1220;
+    public synchronized static ProjectionManager getInstance(Context context) {
+        if (sInstance == null) {
+            sInstance = new ProjectionManager(context);
+            Console.getInstance(context).registerModule("projection", sInstance);
+        }
+        return sInstance;
+    }
+
+    private final static int REQUEST_DISPLAY_WIDTH = 1920;
+    private final static int REQUEST_DISPLAY_HEIGHT = 1220;
 
     private final static String TAG = "ProjectionScreenManager";
+    private static ProjectionManager sInstance;
 
     private Context mContext;
 
@@ -45,11 +56,10 @@ public class ProjectionManager {
     private BindingHolder mBindingHolder;
     private MediaProjection mMediaProjection;
     private DisplayManager mDisplayManager;
+    private GLThread mGLThread;
     private GLDisplayRenderer nRenderer;
     private MyWriter mWriter;
     private Thread mEncodeThread;
-    private String mPublishUrl;
-    private GLThread mGLThread;
 
     public enum ProjectionMode {
         NONE,
@@ -60,10 +70,11 @@ public class ProjectionManager {
 
     private ProjectionMode mProjectionMode = ProjectionMode.NONE;
 
-    public ProjectionManager(Context context) {
-        this.mContext = context;
+    private ProjectionManager(Context context) {
+        mContext = context.getApplicationContext();
         // init global variable
         init();
+        Console.getInstance(context).registerModule("projection", this);
     }
 
     public Display getPresentationDisplay() {
@@ -110,7 +121,7 @@ public class ProjectionManager {
                 ProjectionManager.REQUEST_DISPLAY_HEIGHT);
 
         mPublishPort = (short) HttpManager.getInstance(mContext).getPort();
-        mGateway = new InternetGateway(mContext);
+        mGateway = InternetGateway.getInstance(mContext);
 
         mMetrics = Resources.getSystem().getDisplayMetrics();
         // media Prejection service for mirror
@@ -318,4 +329,23 @@ public class ProjectionManager {
             }
         }
     }
+
+    @Override
+    public void dump(Dumpper dumpper) {
+        dumpper.dump("mPublishPort", mPublishPort);
+        dumpper.dump("mGateway", mGateway);
+        dumpper.dump("mPresentationDisplay", mPresentationDisplay);
+        dumpper.dump("mMirrorDisplay", mMirrorDisplay);
+        dumpper.dump("mMetrics", mMetrics);
+        dumpper.dump("mMediaManager", mMediaManager);
+        dumpper.dump("mBindingHolder", mBindingHolder);
+        dumpper.dump("mMediaProjection", mMediaProjection);
+        dumpper.dump("mDisplayManager", mDisplayManager);
+        dumpper.dump("mGLThread", mGLThread);
+        dumpper.dump("nRenderer", nRenderer);
+        dumpper.dump("mWriter", mWriter);
+        dumpper.dump("mEncodeThread", mEncodeThread);
+        dumpper.dump("mProjectionMode", mProjectionMode);
+    }
+
 }
