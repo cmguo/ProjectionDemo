@@ -23,6 +23,7 @@ android {
 dependencies {
     //implementation fileTree(dir: 'libs', include: ['*.aar'])
     implementation project(":DebugTools")
+    implementation project(":GLAndroid")
     implementation project(":BaseDroid")
     implementation project(':Remote:library')
     implementation 'androidx.appcompat:appcompat:1.0.2'
