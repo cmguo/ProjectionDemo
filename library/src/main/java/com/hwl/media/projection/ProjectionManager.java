@@ -42,7 +42,7 @@ public class ProjectionManager implements Dumpable {
     private final static int REQUEST_DISPLAY_WIDTH = 1920;
     private final static int REQUEST_DISPLAY_HEIGHT = 1220;
 
-    private final static String TAG = "ProjectionScreenManager";
+    private final static String TAG = "ProjectionManager";
     private static ProjectionManager sInstance;
 
     private Context mContext;
@@ -83,7 +83,7 @@ public class ProjectionManager implements Dumpable {
 
     public String getPulishUrl() {
         return "http://" + mGateway.getRealIp(mPublishPort) + ":"
-                + mPublishPort + "/screen_record.h264";
+                + mPublishPort + "/screen_record.h264?f=h264";
     }
 
     private long mLastTime = 0;
@@ -170,6 +170,8 @@ public class ProjectionManager implements Dumpable {
                 } catch (IOException e) {
                     Log.w(TAG, "bumpSamples", e);
                 }
+                stream.stop();
+                stream.term();
                 Streams.closeQuietly(tunnel);
             }
         });

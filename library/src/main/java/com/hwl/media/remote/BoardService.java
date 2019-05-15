@@ -174,6 +174,7 @@ public class BoardService implements ServiceDiscovery.IServiceListener, Dumpable
             }
             return;
         }
+        Log.d(TAG, "request " + path + " with " + data);
         String url = mUri + path;
 //        if (callback == null) {
 //            callback = new CallBack<T>() {
